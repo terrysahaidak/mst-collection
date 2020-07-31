@@ -6,7 +6,9 @@
   "module": "dist/mst-collection.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "src",
+    "README"
   ],
   "scripts": {
     "start": "tsdx watch",
