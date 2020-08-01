@@ -5,7 +5,7 @@ import {
   getReferenceParentOfType,
   castEntityRef,
 } from './entityRef';
-// import { CollectionModel } from './CollectionModel';
+import { CollectionModel } from './CollectionModel';
 // import { EntitiesModel } from './EntitiesModel';
 
 export {
@@ -15,7 +15,7 @@ export {
   createEntityRef,
   getReferenceParentOfType,
   // EntitiesModel,
-  // CollectionModel,
+  CollectionModel,
   ExtendedModel,
   castEntityRef,
 };
