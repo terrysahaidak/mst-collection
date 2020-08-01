@@ -6,7 +6,7 @@ import {
   castEntityRef,
 } from './entityRef';
 import { CollectionModel } from './CollectionModel';
-// import { EntitiesModel } from './EntitiesModel';
+import { EntitiesModel } from './EntitiesModel';
 
 export {
   createThunk,
@@ -14,7 +14,7 @@ export {
   Model,
   createEntityRef,
   getReferenceParentOfType,
-  // EntitiesModel,
+  EntitiesModel,
   CollectionModel,
   ExtendedModel,
   castEntityRef,
