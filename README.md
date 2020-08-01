@@ -2,10 +2,12 @@
 
 > Collection abstraction over mobx-state-tree models.
 
+Documentation will coming soon.
+
 ## Installation
 
 ```sh
-npm add mst-collections
+npm add mst-collection
 ```
 
 ## LICENSE
