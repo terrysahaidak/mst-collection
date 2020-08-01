@@ -15,14 +15,14 @@ describe('CollectionModel', () => {
     const AModel = model(A);
 
     class ACollection extends CollectionModel(AModel) {
-      method() {
-        this.has(1);
-      }
+      method() {}
     }
 
     const ACollectionModel = model(ACollection);
 
     const aCollection = ACollectionModel.create({});
+
+    expect(aCollection).toHaveProperty('method');
 
     const a = AModel.create({ id: 1 });
 
