@@ -1,4 +1,4 @@
-import { types } from 'mobx-state-tree';
+import { types, applySnapshot, getEnv } from 'mobx-state-tree';
 import { model, Model, ExtendedModel, createThunk } from '../src';
 
 describe('creating models', () => {
@@ -93,5 +93,59 @@ describe('creating models', () => {
     expect(counter.setCountAsync.inProgress).toBeFalsy();
 
     expect(counter.count).toBe(4);
+  });
+
+  it('applySnapshot', () => {
+    class Counter extends Model({
+      count: types.number,
+    }) {
+      applySnapshotAction() {
+        applySnapshot(this, {
+          count: 2,
+        });
+      }
+    }
+
+    const CounterModel = model(Counter);
+    const counter = CounterModel.create({ count: 1 });
+
+    counter.applySnapshotAction();
+
+    expect(counter.count).toBe(2);
+  });
+  it('applySnapshot', () => {
+    class Counter extends Model({
+      count: types.number,
+    }) {
+      applySnapshotAction() {
+        applySnapshot(this, {
+          count: 2,
+        });
+      }
+    }
+
+    const CounterModel = model(Counter);
+    const counter = CounterModel.create({ count: 1 });
+
+    counter.applySnapshotAction();
+
+    expect(counter.count).toBe(2);
+  });
+
+  it('getEnv', () => {
+    class Counter extends Model({
+      count: types.number,
+    }) {
+      getEnv() {
+        return getEnv(this);
+      }
+    }
+
+    const CounterModel = model(Counter);
+    const counter = CounterModel.create({ count: 1 }, { a: 1 });
+
+    const env = counter.getEnv();
+
+    expect(env).toMatchObject({ a: 1 });
   });
 });
