@@ -1,8 +1,8 @@
 import { types } from 'mobx-state-tree';
 import { model, Model, view } from '../src';
 
-describe('creating models', () => {
-  it('can use volatile with the right context', () => {
+describe('view with params', () => {
+  it('can use view with params', () => {
     class Counter extends Model({
       count: types.number,
     }) {
