@@ -1,5 +1,5 @@
 import { types, applySnapshot, getEnv } from 'mobx-state-tree';
-import { model, Model, ExtendedModel, createThunk } from '../src';
+import { model, Model, ExtendedModel } from '../src';
 
 describe('creating models', () => {
   class Counter extends Model({
@@ -60,39 +60,6 @@ describe('creating models', () => {
     expect(counter.name).toBe('Test counter');
     counter.setName('Test');
     expect(counter.name).toBe('Test');
-  });
-
-  it('uses thunk', async () => {
-    class Counter extends Model({
-      count: 0,
-    }) {
-      setCount(count: number) {
-        this.count = count;
-      }
-
-      setCountAsync = createThunk(
-        (count: number) =>
-          async function(this: Counter) {
-            await new Promise((res) => setTimeout(res, 100));
-
-            this.setCount(count);
-          },
-      );
-    }
-
-    const CounterModel = model(Counter);
-
-    const counter = CounterModel.create({});
-
-    counter.setCount(2);
-    expect(counter.count).toBe(2);
-
-    await counter.setCountAsync.run(4);
-
-    expect(counter.setCountAsync.hasEverBeenRan).toBeTruthy();
-    expect(counter.setCountAsync.inProgress).toBeFalsy();
-
-    expect(counter.count).toBe(4);
   });
 
   it('applySnapshot', () => {

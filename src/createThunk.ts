@@ -6,19 +6,11 @@ import {
 } from 'mobx-state-tree';
 import { normalize, Schema } from 'normalizr';
 
-const ErrorModel = t.model({
-  message: '',
-  status: t.maybeNull(t.number),
-  reason: t.maybeNull(t.string),
-  errorCode: t.maybeNull(t.string),
-  meta: t.maybeNull(t.frozen({})),
-});
-
 export const asyncModel = t
   .model({
     inProgress: false,
     inProgressRetry: false,
-    error: t.optional(t.maybeNull(ErrorModel), null),
+    error: t.optional(t.frozen(), null),
     hasEverBeenRan: false,
     throwable: false,
   })
@@ -91,13 +83,7 @@ export const asyncModel = t
 
       // const response = err?.response;
 
-      // store.error = {
-      //   message: response?.data?.message ?? err?.message,
-      //   status: response?.status ?? null,
-      //   reason: response?.data?.reason ?? null,
-      //   errorCode: response?.data?.error ?? null,
-      //   meta: response?.data?.meta ?? null,
-      // };
+      store.error = err;
 
       if (throwError) {
         throw err;
@@ -115,7 +101,6 @@ export const asyncModel = t
     merge(collection: any, scheme: Schema) {
       const { result, entities } = normalize(collection, scheme);
 
-
       (getRoot(store) as any).entities.merge(entities);
 
       return {
@@ -124,42 +109,50 @@ export const asyncModel = t
     },
   }));
 
-export type Thunk<A extends any[]> = (
+export type Thunk<A extends any[], R> = (
   ...args: A
-) => (flow: Instance<typeof asyncModel>) => any;
+) => (flow: Instance<typeof asyncModel>) => R | undefined;
 
-export function createThunk<A extends any[]>(
-  thunk: Thunk<A>,
+export function createThunk<A extends any[], R>(
+  thunk: Thunk<A, R>,
   auto = true,
   throwError = auto,
 ) {
   const thunkModel = asyncModel.named('thunk').actions((store) => ({
-    async auto<T extends () => Promise<any>>(promise: T) {
+    async auto<R>(promise: any): Promise<R | undefined> {
       try {
         store.start();
 
-        await promise();
+        const value = await promise();
 
         store.success();
+
+        return value;
       } catch (err) {
         store.failed(err, throwError);
       }
+
+      return undefined;
     },
 
-    run: function run<T extends (...args: A) => 
-      (flow: Instance<typeof asyncModel>) => any, R extends Promise<any>>(
-        ...args: Parameters<T>
-      ): R {
-      const fn = thunk(...args)
+    run: function run<
+      T extends (
+        ...args: A
+      ) => (flow: Instance<typeof asyncModel>) => R | undefined
+    >(...args: Parameters<T>): R | undefined {
+      const fn = thunk(...args);
       const promise = () => fn.bind(getParent(store))(store);
 
       if (auto) {
-        return this.auto(promise) as R;
+        // @ts-ignore
+        return this.auto<R>(promise);
       }
 
       return promise();
     },
   }));
 
-  return (t.optional(thunkModel, {}) as any) as Instance<typeof thunkModel>;
+  return (t.optional(thunkModel, {}) as any) as Instance<
+    typeof thunkModel
+  >;
 }
