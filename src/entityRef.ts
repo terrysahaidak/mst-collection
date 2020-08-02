@@ -43,7 +43,7 @@ export function createEntityRef<T extends IAnyType>(
 
         if (typeof entityModel === 'undefined') {
           throw new Error(
-            `EntityRef: Couldn't find entity model with a name ${entityName}`,
+            `EntityRef: Couldn't find entity model with a name ${entityName} and id ${self.id}`,
           );
         }
 

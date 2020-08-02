@@ -5,7 +5,7 @@ import {
   IMapType,
   Instance,
 } from 'mobx-state-tree';
-import { ExtendedModel, Model, _Model } from './Model';
+import { ExtendedModel, Model, _Model, view } from './Model';
 
 type Id = string | number;
 
@@ -34,11 +34,11 @@ const createCollectionStore = <T extends IAnyModelType>(
   class Collection extends Model({
     collection: types.map(modelForCollection),
   }) {
-    get(id: Id) {
+    @view get(id: Id) {
       return this.collection.get(String(id));
     }
 
-    has(id: Id) {
+    @view has(id: Id) {
       return this.collection.has(String(id));
     }
 

@@ -1,22 +1,22 @@
+import { computedFn } from 'mobx-utils';
 import { propsSymbol, modelToExtendSymbol } from './Model';
-import {
-  types as t,
-} from 'mobx-state-tree';
-
+import { types as t } from 'mobx-state-tree';
 
 type Views = {
-  [k: string]: PropertyDescriptor
-}
+  [k: string]: PropertyDescriptor;
+};
 
 type Actions = {
-  [k: string]: (...args: any[]) => void
-}
+  [k: string]: (...args: any[]) => void;
+};
 
 type Volatile = {
-  [k: string]: any
-}
+  [k: string]: any;
+};
 
-export function getOwnPropertyDescriptors(obj: object): PropertyDescriptorMap {
+export function getOwnPropertyDescriptors(
+  obj: object,
+): PropertyDescriptorMap {
   return Object.getOwnPropertyDescriptors(obj);
 }
 
@@ -24,16 +24,19 @@ function hasKeys(obj: object): boolean {
   return !!Object.keys(obj).length;
 }
 
-function binder(fns: { [k:string]: Function }) {
+function binder(fns: { [k: string]: Function }) {
   return (obj: object) =>
-    Object.entries(fns).reduce((acc, [fnName, fn]) => {
-      if (typeof fn !== 'function') {
-        throw new Error(`${fnName} must be function`);
-      }
+    Object.entries(fns).reduce(
+      (acc, [fnName, fn]) => {
+        if (typeof fn !== 'function') {
+          throw new Error(`${fnName} must be function`);
+        }
 
-      acc[fnName] = fn.bind(obj);
-      return acc;
-    }, {} as any);
+        acc[fnName] = fn.bind(obj);
+        return acc;
+      },
+      {} as any,
+    );
 }
 
 function viewBinder(descs: Views) {
@@ -53,19 +56,14 @@ function descBind(obj: object, desc: any, fnName: string) {
   return { ...desc, [fnName]: fn.bind(obj) };
 }
 
-
 export function internalModel(Class: new () => any): any {
   const instance = new Class();
-  // extracting snapshot processors 
-  // const { preProcessSnapshot, postProcessSnapshot } = instance;
-  // and removing them from the instance 
-  // delete instance["preProcessSnapshot"];
-  // delete instance["postProcessSnapshot"];
 
   // getting all the model props
+  // @ts-ignore
   const modelDefinition = instance[propsSymbol] || {};
   const extendsModel = instance[modelToExtendSymbol];
-  // and removing them from the instance  
+  // and removing them from the instance
   delete instance[propsSymbol];
   delete instance[modelToExtendSymbol];
 
@@ -73,30 +71,14 @@ export function internalModel(Class: new () => any): any {
   const descriptorsEntries = Object.entries(descriptors).filter(
     ([key]) => key !== 'constructor',
   );
-  const instanceEntries = Object.entries(instance);
 
   // for storing
   const views: Views = {};
-  const actions: Actions = {
-    __update(cb: () => void) {
-      cb();
-    },
-  };
+  const actions: Actions = {};
   const volatile: Volatile = {};
+  const computedFns: Volatile = {};
 
   const thunks: { [k: string]: any } = {};
-
-  // extracting thunks and local state
-  instanceEntries.forEach(([key, value]) => {
-    // @ts-ignore
-    if (value.isType) {
-      // thunks
-      thunks[key] = value; 
-    } else if (typeof value !== 'undefined') {
-      // local state (volatile)
-      volatile[key] = value;
-    }
-  });
 
   // extracting views and actions
   descriptorsEntries.forEach(([key, desc]) => {
@@ -105,16 +87,16 @@ export function internalModel(Class: new () => any): any {
     if (get || set) {
       views[key] = desc;
     } else if (typeof value === 'function') {
-      actions[key] = value;
+      if (instance.$views && instance.$views[key]) {
+        computedFns[key] = value;
+      } else {
+        actions[key] = value;
+      }
     }
   });
 
   // actual model
   let ActualModel = t.model(Class.name, modelDefinition);
-
-  if (hasKeys(volatile)) {
-    ActualModel = ActualModel.volatile(() => volatile);
-  }
 
   if (hasKeys(actions)) {
     ActualModel = ActualModel.actions(binder(actions));
@@ -124,25 +106,52 @@ export function internalModel(Class: new () => any): any {
     ActualModel = ActualModel.views(viewBinder(views));
   }
 
+  const instanceEntries = Object.entries(instance);
+  // extracting thunks and local state
+  instanceEntries.forEach(([key, value]) => {
+    // @ts-ignore
+    if (value.isType) {
+      // thunks
+      thunks[key] = value;
+    } else if (typeof value !== 'undefined') {
+      // local state (volatile)
+      volatile[key] = value;
+    }
+  });
+
   if (Object.keys(thunks).length > 0) {
     ActualModel = ActualModel.props(thunks);
   }
 
-  // if (preProcessSnapshot) {
-  //   ActualModel = ActualModel.preProcessSnapshot(preProcessSnapshot);
-  // }
+  if (hasKeys(volatile)) {
+    ActualModel = ActualModel.volatile(() => volatile);
+  }
 
-  // if (postProcessSnapshot) {
-  //   ActualModel = ActualModel.postProcessSnapshot(
-  //     postProcessSnapshot,
-  //   );
-  // }
+  if (hasKeys(computedFns)) {
+    ActualModel = ActualModel.volatile((self) => {
+      return Object.entries(computedFns).reduce(
+        (acc, [fnName, fn]) => {
+          if (typeof fn !== 'function') {
+            throw new Error(`${fnName} must be function`);
+          }
+
+          const binded = fn.bind(self);
+
+          acc[fnName] = computedFn(binded);
+          return acc;
+        },
+        {} as any,
+      );
+    });
+  }
 
   if (extendsModel) {
-    return t.compose(
-      internalModel(extendsModel),
-      ActualModel,
-    ).named(Class.name);
+    return t
+      .compose(
+        internalModel(extendsModel),
+        ActualModel,
+      )
+      .named(Class.name);
   }
 
   return ActualModel;

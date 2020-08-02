@@ -1,5 +1,5 @@
 import { createThunk } from './createThunk';
-import { Model, model, ExtendedModel } from './Model';
+import { Model, model, ExtendedModel, view } from './Model';
 import {
   createEntityRef,
   getReferenceParentOfType,
@@ -12,6 +12,7 @@ export {
   createThunk,
   model,
   Model,
+  view,
   createEntityRef,
   getReferenceParentOfType,
   EntitiesModel,

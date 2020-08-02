@@ -30,5 +30,8 @@
     "tslib": "^1.10.0",
     "typescript": "^3.6.2",
     "normalizr": "^3.4.1"
+  },
+  "dependencies": {
+    "mobx-utils": "^5.6.1"
   }
 }

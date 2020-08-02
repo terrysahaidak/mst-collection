@@ -86,6 +86,6 @@ export function model<
   return m;
 }
 
-// export function action(target: { [key: string]: any }, key: string) {
-// 	(target.$actions || (target.$actions = {}))[key] = true;
-// }
+export function view(target: { [key: string]: any }, key: string) {
+  (target.$views || (target.$views = {}))[key] = true;
+}

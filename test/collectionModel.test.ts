@@ -30,7 +30,9 @@ describe('CollectionModel', () => {
 
     aCollection.add(a.id, a);
 
-    expect(aCollection.has(1)).toBeTruthy();
+    const hasThisModel = aCollection.has(1);
+
+    expect(hasThisModel).toBeTruthy();
 
     const item = aCollection.get(1);
 
