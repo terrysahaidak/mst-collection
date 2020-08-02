@@ -7,6 +7,7 @@ import {
 } from './entityRef';
 import { CollectionModel } from './CollectionModel';
 import { EntitiesModel } from './EntitiesModel';
+import { RootModel } from './RootModel';
 
 export {
   createThunk,
@@ -19,4 +20,5 @@ export {
   CollectionModel,
   ExtendedModel,
   castEntityRef,
+  RootModel,
 };

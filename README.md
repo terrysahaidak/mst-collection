@@ -10,10 +10,6 @@ Documentation will coming soon.
 npm add mst-collection
 ```
 
-## Concepts
-
-TODO: Write about entities, collections, entity refs and why we use them.
-
 ## Usage
 
 ### Using classes to define models
@@ -81,6 +77,21 @@ const CounterModel = model(Counter);
 
  const CounterModel = model(Counter);
  ```
+
+## Concepts
+
+TODO: Write about entities, collections, entity refs and why we use them.
+
+### RootModel
+
+### CollectionModel
+
+### EntitiesModel
+
+### entityRef
+
+### Thunks
+
 
 ## LICENSE
 

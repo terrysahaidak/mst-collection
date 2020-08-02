@@ -1,11 +1,11 @@
 import {
-  types,
   IAnyModelType,
   IOptionalIType,
   ModelProperties,
 } from 'mobx-state-tree';
 import { normalize, Schema } from 'normalizr';
 import { ExtendedModel, Model, _Model } from './Model';
+import { optionateModels } from './utils';
 
 type ICollections = {
   [k: string]: IAnyModelType;
@@ -25,15 +25,9 @@ function createEntitiesStore<
     [K in Keys]: IOptionalIType<T[K], T[K]['SnapshotType']>;
   };
 
-  const optionalModels = Object.entries(collections).reduce(
-    (acc, [key, value]) => {
-      // @ts-ignore
-      acc[key] = types.optional(value, {});
-
-      return acc;
-    },
-    {},
-  ) as OptionatedCollections;
+  const optionalModels = optionateModels<OptionatedCollections>(
+    collections,
+  );
 
   class Entities extends Model(optionalModels as ModelProperties) {
     merge(normalizedEntities: { [key: string]: object }) {
