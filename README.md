@@ -5,11 +5,11 @@
 - [Installation](#installation)
 - [Usage](#usage)
   - [Using classes to define models](#using-classes-to-define-models)
-    - [Adding actions](#adding-actions)
-    - [Adding views](#adding-views)
-    - [Adding views with arguments](#adding-views-with-arguments)
-    - [Adding volatile](#adding-volatile)
-    - [Extending models](#extending-models)
+  - [Adding actions](#adding-actions)
+  - [Adding views](#adding-views)
+  - [Adding views with arguments](#adding-views-with-arguments)
+  - [Adding volatile](#adding-volatile)
+  - [Extending models](#extending-models)
 - [Main Concepts and architecture](#main-concepts-and-architecture)
   - [RootModel](#rootmodel)
   - [CollectionModel](#collectionmodel)
@@ -91,7 +91,7 @@ const todo = TodoModel.create({
 todo.printInfo(); // prints: Create docs for mst-collection - Completed: false
 ```
 
-#### Adding actions
+### Adding actions
 
 All the methods in the model class are actions. They should be defined ES6 class methods. Arrow functions won't work (see Limitations sections). Also, they are bound to the model context under the hood se no need for `bind` in the constructor.
 
@@ -143,7 +143,7 @@ class Todo extends Model({
 }
 ```
 
-#### Adding views
+### Adding views
 
 Views in MST are getters which access some observables and return some value. It works in the same way in our class-based models.
 
@@ -170,7 +170,7 @@ class Todo extends Model({
 }
 ```
 
-#### Adding views with arguments
+### Adding views with arguments
 
 Views in mobx-state-tree should be getters in order to apply memoization. But getters don't accept arguments. As a workaround, we use [computedFn from mobx-utils](https://github.com/mobxjs/mobx-utils#computedfn). In order to mark some method as view - use `@view` decorator. It's got its own limitations - refer to [mobx-utils](https://github.com/mobxjs/mobx-utils#computedfnhttps://github.com/mobxjs/mobx-utils#computedfn) for more info.
 
@@ -191,7 +191,7 @@ class Counter extends Model({
 const CounterModel = model(Counter);
 ```
 
-#### Adding volatile
+### Adding volatile
 
 All the instance properties of the model are volatile.
 
@@ -220,7 +220,7 @@ class Counter extends Model({
 }
 ```
 
-#### Extending models
+### Extending models
 
 TODO
 
