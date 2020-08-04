@@ -1,6 +1,26 @@
-# mst-collection
+# mst-collection <!-- omit in toc -->
 
 > Collection abstraction over mobx-state-tree models.
+
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Using classes to define models](#using-classes-to-define-models)
+    - [Adding actions](#adding-actions)
+    - [Adding views](#adding-views)
+    - [Adding views with arguments](#adding-views-with-arguments)
+    - [Adding volatile](#adding-volatile)
+    - [Extending models](#extending-models)
+- [Main Concepts and architecture](#main-concepts-and-architecture)
+  - [RootModel](#rootmodel)
+  - [CollectionModel](#collectionmodel)
+  - [EntitiesModel](#entitiesmodel)
+  - [entityRef](#entityref)
+  - [Thunks](#thunks)
+  - [Using models inside React components](#using-models-inside-react-components)
+- [TODOs](#todos)
+- [Limitations](#limitations)
+- [Acknowledging](#acknowledging)
+- [LICENSE](#license)
 
 ## Installation
 
