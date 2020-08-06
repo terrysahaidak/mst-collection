@@ -11,7 +11,7 @@ export const asyncModel = t
     inProgress: false,
     inProgressRetry: false,
     error: t.optional(t.frozen(), null),
-    hasEverBeenRan: false,
+    hasEverBeenRun: false,
     throwable: false,
   })
   .views((store) => ({
@@ -32,7 +32,7 @@ export const asyncModel = t
     },
 
     get inProgressAgain() {
-      return store.inProgress && store.hasEverBeenRan;
+      return store.inProgress && store.hasEverBeenRun;
     },
   }))
   .actions((store) => ({
@@ -47,8 +47,8 @@ export const asyncModel = t
     },
 
     success() {
-      if (!store.hasEverBeenRan) {
-        store.hasEverBeenRan = true;
+      if (!store.hasEverBeenRun) {
+        store.hasEverBeenRun = true;
       }
 
       if (store.inProgressRetry) {
@@ -59,8 +59,8 @@ export const asyncModel = t
     },
 
     failed(err: Error, throwError = store.throwable) {
-      if (!store.hasEverBeenRan) {
-        store.hasEverBeenRan = true;
+      if (!store.hasEverBeenRun) {
+        store.hasEverBeenRun = true;
       }
 
       // eslint-disable-next-line no-undef
