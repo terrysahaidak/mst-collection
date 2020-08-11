@@ -1,4 +1,3 @@
-import { _Model } from './../dist/Model.d';
 import {
   types,
   getRoot,
@@ -13,6 +12,7 @@ import {
 import { normalize, Schema } from 'normalizr';
 import { runInAction } from 'mobx';
 import { Model } from './';
+import { _Model } from './Model';
 import { ExtendedModel, view } from './Model';
 
 function reduceNormalize(

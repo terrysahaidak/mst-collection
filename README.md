@@ -1,5 +1,7 @@
 # mst-collection <!-- omit in toc -->
 
+[![npm](https://img.shields.io/npm/v/mst-collection.svg?style=plastic)](https://npmjs.com/package/mst-collection)
+
 > Collection abstraction over mobx-state-tree models.
 
 - [Installation](#installation)
