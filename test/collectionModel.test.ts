@@ -15,6 +15,7 @@ describe('CollectionModel', () => {
     const AModel = model(A);
 
     class ACollection extends CollectionModel(AModel) {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       method() {}
     }
 

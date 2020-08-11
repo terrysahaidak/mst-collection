@@ -1,7 +1,7 @@
 import { Model, model, RootModel } from '../src';
 
 describe('RootModel', () => {
-  it('should create collection model', () => {
+  it('should create root model', () => {
     class A extends Model({
       id: 1,
     }) {}

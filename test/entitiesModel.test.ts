@@ -22,6 +22,7 @@ describe('CollectionModel', () => {
     const ASchema = new schema.Entity('a');
 
     class ACollection extends CollectionModel(AModel) {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       method() {}
     }
 
@@ -37,6 +38,6 @@ describe('CollectionModel', () => {
 
     e.normalizeMerge(AModelSnapshot, ASchema);
 
-    expect(e.a.get(1)!.prop).toBe(1);
+    expect(e.a.get(1)?.prop).toBe(1);
   });
 });

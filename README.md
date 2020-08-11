@@ -14,6 +14,7 @@
   - [RootModel](#rootmodel)
   - [CollectionModel](#collectionmodel)
   - [EntitiesModel](#entitiesmodel)
+  - [ListModel](#listmodel)
   - [entityRef](#entityref)
   - [Thunks](#thunks)
   - [Using models inside React components](#using-models-inside-react-components)
@@ -216,7 +217,7 @@ class Counter extends Model({
     // this is just a local state field
     // so we can mutate it
     this.countOfIncrements += 1;
-  }
+  };
 }
 ```
 
@@ -240,6 +241,10 @@ TODO
 
 TODO
 
+### ListModel
+
+TODO
+
 ### entityRef
 
 TODO
@@ -255,7 +260,7 @@ TODO
 ## TODOs
 
 - [ ] - Add persist
-- [ ] - Add ListModel
+- [x] - Add ListModel
 - [ ] - Add second param to the model function to specify decorators
 - [ ] - Add ability to config the ref id generator function
 - [ ] - Add ability to change thunk model (add new stuff)
@@ -266,9 +271,9 @@ TODO
 1. Volatile function don't have access to the props of the model.
 
 ```ts
- class Counter extends Model({
-   count: types.number,
- }) {
+class Counter extends Model({
+  count: types.number,
+}) {
   // this is not a action but volatile function
   getCount = () => {
     // this here doesn't have Model properties
@@ -276,15 +281,15 @@ TODO
     console.log(this.count);
   };
 
-   // this is an action and it hac access to context
-   getCountAction() {
-     // logs value of count
-     console.log(this.count)
-   }
- }
+  // this is an action and it hac access to context
+  getCountAction() {
+    // logs value of count
+    console.log(this.count);
+  }
+}
 
- const CounterModel = model(Counter);
- ```
+const CounterModel = model(Counter);
+```
 
 ## Acknowledging
 

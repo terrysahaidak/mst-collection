@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import {
   IModelType,
   Instance,
@@ -10,9 +11,10 @@ import { $nonEmptyObject } from 'mobx-state-tree/dist/internal';
 export const propsSymbol = Symbol('props');
 export const modelToExtendSymbol = Symbol('props');
 
-export abstract class BaseModel<PROPS extends { [k: string]: any }> {
+type AnyObject = { [k: string]: any };
+export abstract class BaseModel<PROPS extends AnyObject> {
   // @ts-ignore
-  private [propsSymbol]: PROPS;
+  private [propsSymbol]?: PROPS;
 }
 
 type AnyClass = {
@@ -24,11 +26,14 @@ export interface _Model<
   OTHERS = {}
 > {
   new (...args: any[]): BaseModel<PROPS> &
-    Instance<
-      IModelType<
-        ModelPropertiesDeclarationToProperties<PROPS>,
-        OTHERS
-      >
+    Omit<
+      Instance<
+        IModelType<
+          ModelPropertiesDeclarationToProperties<PROPS>,
+          OTHERS
+        >
+      >,
+      typeof $nonEmptyObject
     >;
 }
 
@@ -38,8 +43,11 @@ export interface _ExtendedModel<
 > {
   new (...args: any[]): InstanceType<SuperModel> &
     BaseModel<PROPS> &
-    Instance<
-      IModelType<ModelPropertiesDeclarationToProperties<PROPS>, {}>
+    Omit<
+      Instance<
+        IModelType<ModelPropertiesDeclarationToProperties<PROPS>, {}>
+      >,
+      typeof $nonEmptyObject
     >;
 }
 

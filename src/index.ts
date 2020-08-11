@@ -8,6 +8,10 @@ import {
 import { CollectionModel } from './CollectionModel';
 import { EntitiesModel } from './EntitiesModel';
 import { RootModel } from './RootModel';
+import {
+  ListModel,
+  useListModelSnapshotProcessor,
+} from './ListModel';
 
 export {
   createThunk,
@@ -21,4 +25,6 @@ export {
   ExtendedModel,
   castEntityRef,
   RootModel,
+  ListModel,
+  useListModelSnapshotProcessor,
 };

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { computedFn } from 'mobx-utils';
 import { propsSymbol, modelToExtendSymbol } from './Model';
 import { types as t } from 'mobx-state-tree';
@@ -26,17 +27,14 @@ function hasKeys(obj: object): boolean {
 
 function binder(fns: { [k: string]: Function }) {
   return (obj: object) =>
-    Object.entries(fns).reduce(
-      (acc, [fnName, fn]) => {
-        if (typeof fn !== 'function') {
-          throw new Error(`${fnName} must be function`);
-        }
+    Object.entries(fns).reduce((acc, [fnName, fn]) => {
+      if (typeof fn !== 'function') {
+        throw new Error(`${fnName} must be function`);
+      }
 
-        acc[fnName] = fn.bind(obj);
-        return acc;
-      },
-      {} as any,
-    );
+      acc[fnName] = fn.bind(obj);
+      return acc;
+    }, {} as any);
 }
 
 function viewBinder(descs: Views) {
@@ -147,10 +145,7 @@ export function internalModel(Class: new () => any): any {
 
   if (extendsModel) {
     return t
-      .compose(
-        internalModel(extendsModel),
-        ActualModel,
-      )
+      .compose(internalModel(extendsModel), ActualModel)
       .named(Class.name);
   }
 
