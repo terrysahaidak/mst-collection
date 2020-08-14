@@ -1,3 +1,4 @@
+import { MergeStrategyType } from './CollectionModel';
 /* eslint-disable @typescript-eslint/ban-types */
 import {
   IAnyModelType,
@@ -13,7 +14,10 @@ type ICollections = {
 };
 
 interface EntitiesModelClass {
-  merge(normalizedEntities: any): void;
+  merge(
+    normalizedEntities: { [key: string]: object },
+    mergeStrategy: MergeStrategyType,
+  ): void;
 
   normalizeMerge<T>(data: any, schema: Schema): T;
 }
@@ -31,7 +35,10 @@ function createEntitiesStore<
   );
 
   class Entities extends Model(optionalModels as ModelProperties) {
-    merge(normalizedEntities: { [key: string]: object }) {
+    merge(
+      normalizedEntities: { [key: string]: object },
+      mergeStrategy: MergeStrategyType = 'assign',
+    ) {
       Object.entries(normalizedEntities).forEach(
         ([key, normalizedEntity]) => {
           const storeEntity = this[key] as any;
@@ -43,7 +50,7 @@ function createEntitiesStore<
           Object.entries(normalizedEntity).forEach(
             ([nestedKey, value]) => {
               if (storeEntity.has(nestedKey)) {
-                storeEntity.update(nestedKey, value);
+                storeEntity.update(nestedKey, value, mergeStrategy);
               } else {
                 storeEntity.collection.set(String(nestedKey), value);
               }

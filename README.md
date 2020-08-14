@@ -267,6 +267,7 @@ TODO
 - [ ] - Add ability to config the ref id generator function
 - [ ] - Add ability to change thunk model (add new stuff)
 - [ ] - Add more tests
+- [x] - Collection merge strategy
 
 ## Limitations
 

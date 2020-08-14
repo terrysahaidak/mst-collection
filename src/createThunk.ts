@@ -5,6 +5,7 @@ import {
   getParent,
 } from 'mobx-state-tree';
 import { normalize, Schema } from 'normalizr';
+import { MergeStrategyType } from './CollectionModel';
 
 export const asyncModel = t
   .model({
@@ -98,10 +99,14 @@ export const asyncModel = t
       store.throwable = value;
     },
 
-    merge(collection: any, scheme: Schema) {
+    merge(
+      collection: any,
+      scheme: Schema,
+      mergeStrategy?: MergeStrategyType,
+    ) {
       const { result, entities } = normalize(collection, scheme);
 
-      (getRoot(store) as any).entities.merge(entities);
+      (getRoot(store) as any).entities.merge(entities, mergeStrategy);
 
       return {
         result,
