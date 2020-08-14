@@ -3,9 +3,10 @@ import {
   Model,
   model,
   getReferenceParentOfType,
-  createEntityRef,
+  createNumberEntityRef,
   castEntityRef,
 } from '../src';
+import { resolveModelReferences } from '../src/entityRef';
 
 describe('EntityRef', () => {
   it('should resolve reference parent with given type', () => {
@@ -13,28 +14,28 @@ describe('EntityRef', () => {
       id: types.identifierNumber,
     }) {
       action() {
-        // замість getParent
-        const post = getReferenceParentOfType(this, PostModel);
+        // instead of getParent
+        const [post] = getReferenceParentOfType(this, PostModel);
 
         return post;
       }
     }
 
     const ApplicationModel = model(Application);
-    // мутимо спеціальний тип для референсу
-    const applicationRef = createEntityRef(
+    // creating specific reference
+    const applicationRef = createNumberEntityRef(
       'applications',
       ApplicationModel,
     );
 
     class Post extends Model({
       id: types.identifierNumber,
-      // обов'язково юзаємо його
+      // we need to use it in order to make things work
       application: types.maybe(applicationRef),
     }) {
       setRef(id: number) {
-        // можна і напряму id прокинути
-        // але TS цього не любить
+        // we can assign id directly
+        // but TS doesn't like it
 
         this.application = castEntityRef(id);
       }
@@ -78,5 +79,49 @@ describe('EntityRef', () => {
     expect(resolvedPost).not.toBeUndefined();
 
     expect(resolvedPost!.id).toBe(1);
+  });
+
+  it('resolves model references', () => {
+    const AModel = model(
+      class A extends Model({
+        id: types.identifierNumber,
+      }) {},
+    );
+    const ARef = createNumberEntityRef('a', AModel);
+
+    const BModel = model(
+      class B extends Model({
+        entities: types.model({
+          a: types.map(AModel),
+        }),
+        list1: types.array(ARef),
+        ref: ARef,
+        refOptional: types.maybe(ARef),
+      }) {},
+    );
+
+    const b = BModel.create({
+      entities: {
+        a: {
+          1: {
+            id: 1,
+          },
+        },
+      },
+      // those references are actually models I want to be initialized
+      list1: [1, 1, 1, 1],
+      ref: 1,
+      refOptional: undefined,
+    });
+
+    console.log(b.ref.current);
+
+    const references = resolveModelReferences(AModel);
+
+    expect(references).toBeInstanceOf(Array);
+
+    // expect(references!.length).toBe(5);
+
+    // expect(getParent(references[4])).
   });
 });

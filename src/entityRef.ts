@@ -1,32 +1,28 @@
 import {
   types,
-  IAnyType,
   getRoot,
   Instance,
   getParentOfType,
   IAnyComplexType,
   castToSnapshot,
+  IAnyModelType,
 } from 'mobx-state-tree';
 import { IStateTreeNode, getType } from 'mobx-state-tree';
 
-const RefsRegistry = new Map();
+const RefsRegistry = new Map<
+  IAnyComplexType,
+  Map<string, IStateTreeNode>
+>();
 
-export function createEntityRef<T extends IAnyType>(
+const createBaseRefModel = <T extends IAnyComplexType>(
   entityName: string,
   Model: T,
-) {
-  let currentRegistry: Map<any, any> = RefsRegistry.get(Model);
-
-  if (!currentRegistry) {
-    RefsRegistry.set(Model, new Map());
-    currentRegistry = RefsRegistry.get(Model);
-  }
-
-  const refModel = types
-    .model(`${Model.name}Ref`, {
-      id: types.number,
+  currentRegistry: Map<string, IStateTreeNode>,
+) =>
+  types
+    .model({
+      id: types.union(types.string, types.number),
     })
-
     .volatile((self) => ({
       _refId: `${Model.name}Ref-${self.id}`,
     }))
@@ -51,11 +47,38 @@ export function createEntityRef<T extends IAnyType>(
       },
     }))
 
-    .actions((self: any) => ({
+    .actions((self) => ({
       afterCreate() {
+        if (typeof currentRegistry === 'undefined') {
+          throw new Error(
+            `EntityRef: Couldn't find registry for ${entityName}`,
+          );
+        }
+
         currentRegistry.set(self._refId, self);
       },
     }));
+
+export function createNumberEntityRef<T extends IAnyComplexType>(
+  entityName: string,
+  Model: T,
+) {
+  let currentRegistry = RefsRegistry.get(Model);
+
+  if (!currentRegistry) {
+    currentRegistry = new Map();
+    RefsRegistry.set(Model, currentRegistry);
+  }
+
+  const refModel = createBaseRefModel(
+    entityName,
+    Model,
+    currentRegistry,
+  )
+    .named(`${Model.name}Ref`)
+    .props({
+      id: types.number,
+    });
 
   return types.snapshotProcessor(refModel, {
     preProcessor(snapshot: number | { id: number }) {
@@ -73,10 +96,47 @@ export function createEntityRef<T extends IAnyType>(
   });
 }
 
-export function getReferenceParentOfType<T extends IAnyComplexType>(
+export function createStringEntityRef<T extends IAnyComplexType>(
+  entityName: string,
+  Model: T,
+) {
+  let currentRegistry = RefsRegistry.get(Model);
+
+  if (!currentRegistry) {
+    currentRegistry = new Map();
+    RefsRegistry.set(Model, currentRegistry);
+  }
+
+  const refModel = createBaseRefModel(
+    entityName,
+    Model,
+    currentRegistry,
+  )
+    .named(`${Model.name}Ref`)
+    .props({
+      id: types.string,
+    });
+
+  return types.snapshotProcessor(refModel, {
+    preProcessor(snapshot: string | { id: string }) {
+      if (typeof snapshot === 'object') {
+        return snapshot;
+      }
+
+      return {
+        id: snapshot,
+      };
+    },
+    postProcessor(snapshot) {
+      return snapshot.id;
+    },
+  });
+}
+
+export function getReferenceParentOfType<T extends IAnyModelType>(
   model: IStateTreeNode,
   parentType: T,
-) {
+): Array<T['Type']> | undefined {
   const type = getType(model);
   const registry = RefsRegistry.get(type);
 
@@ -84,10 +144,16 @@ export function getReferenceParentOfType<T extends IAnyComplexType>(
     return undefined;
   }
 
-  for (let value of registry.values()) {
+  const parents: T[] = [];
+
+  for (const value of registry.values()) {
     try {
-      return getParentOfType(value, parentType);
+      parents.push(getParentOfType<T>(value, parentType));
     } catch {}
+  }
+
+  if (parents.length > 0) {
+    return parents;
   }
 
   return undefined;
@@ -95,4 +161,16 @@ export function getReferenceParentOfType<T extends IAnyComplexType>(
 
 export function castEntityRef(id: number | string) {
   return castToSnapshot(id as any);
+}
+
+export function resolveModelReferences<T extends IAnyModelType>(
+  type: T,
+): undefined | any[] {
+  const registry = RefsRegistry.get(type);
+
+  if (!registry) {
+    return undefined;
+  }
+
+  return [...registry.values()];
 }
