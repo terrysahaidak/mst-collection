@@ -64,27 +64,26 @@ export const asyncModel = t
         store.hasEverBeenRun = true;
       }
 
-      // eslint-disable-next-line no-undef
-      // if (__DEV__) {
-      //   // eslint-disable-next-line global-require
-      //   const Reactotron = require('reactotron-react-native').default;
-      //   const { message, stack } = err;
-      //   if (stack) {
-      //     Reactotron.error(message, stack);
-      //   } else {
-      //     Reactotron.log(`Error:\n${message}`);
-      //   }
-      // }
-
       if (store.inProgressRetry) {
         store.inProgressRetry = false;
       } else {
         store.inProgress = false;
       }
 
-      // const response = err?.response;
-
-      store.error = err;
+      // @ts-ignore
+      const response = err?.response;
+      if (response) {
+        store.error = {
+          message: response?.data?.message ?? err.message,
+          status: response?.status ?? null,
+          statusText: response?.statusText ?? null,
+          reason: response?.data?.reason ?? null,
+          errorCode: response?.data?.error ?? response?.code,
+          meta: response?.data?.meta ?? null,
+        };
+      } else {
+        store.error = err;
+      }
 
       if (throwError) {
         throw err;
