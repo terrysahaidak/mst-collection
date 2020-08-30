@@ -2,84 +2,84 @@ import { types } from 'mobx-state-tree';
 import {
   Model,
   model,
-  getReferenceParentOfType,
+  // getReferenceParentOfType,
   createNumberEntityRef,
-  castEntityRef,
+  // castEntityRef,
 } from '../src';
 import { resolveModelReferences } from '../src/entityRef';
 
 describe('EntityRef', () => {
-  it('should resolve reference parent with given type', () => {
-    class Application extends Model({
-      id: types.identifierNumber,
-    }) {
-      action() {
-        // instead of getParent
-        const [post] = getReferenceParentOfType(this, PostModel);
+  // it('should resolve reference parent with given type', () => {
+  //   class Application extends Model({
+  //     id: types.identifierNumber,
+  //   }) {
+  //     action() {
+  //       // instead of getParent
+  //       const [post] = getReferenceParentOfType(this, PostModel);
 
-        return post;
-      }
-    }
+  //       return post;
+  //     }
+  //   }
 
-    const ApplicationModel = model(Application);
-    // creating specific reference
-    const applicationRef = createNumberEntityRef(
-      'applications',
-      ApplicationModel,
-    );
+  //   const ApplicationModel = model(Application);
+  //   // creating specific reference
+  //   const applicationRef = createNumberEntityRef(
+  //     'applications',
+  //     ApplicationModel,
+  //   );
 
-    class Post extends Model({
-      id: types.identifierNumber,
-      // we need to use it in order to make things work
-      application: types.maybe(applicationRef),
-    }) {
-      setRef(id: number) {
-        // we can assign id directly
-        // but TS doesn't like it
+  //   class Post extends Model({
+  //     id: types.identifierNumber,
+  //     // we need to use it in order to make things work
+  //     application: types.maybe(applicationRef),
+  //   }) {
+  //     setRef(id: number) {
+  //       // we can assign id directly
+  //       // but TS doesn't like it
 
-        this.application = castEntityRef(id);
-      }
-    }
+  //       this.application = castEntityRef(id);
+  //     }
+  //   }
 
-    const PostModel = model(Post);
+  //   const PostModel = model(Post);
 
-    const EntitiesModel = types.model('EntitiesModel', {
-      applications: types.map(ApplicationModel),
-      posts: types.map(PostModel),
-    });
+  //   const EntitiesModel = types.model('EntitiesModel', {
+  //     applications: types.map(ApplicationModel),
+  //     posts: types.map(PostModel),
+  //   });
 
-    const RootModel = types.model('Root', {
-      posts: types.array(types.reference(PostModel)),
-      entities: types.optional(EntitiesModel, {}),
-    });
+  //   const RootModel = types.model('Root', {
+  //     posts: types.array(types.reference(PostModel)),
+  //     entities: types.optional(EntitiesModel, {}),
+  //   });
 
-    const root = RootModel.create({
-      posts: [1],
-      entities: {
-        posts: {
-          1: {
-            id: 1,
-            application: 1,
-          },
-        },
-        applications: {
-          1: {
-            id: 1,
-          },
-        },
-      },
-    });
+  //   const root = RootModel.create({
+  //     posts: [1],
+  //     entities: {
+  //       posts: {
+  //         1: {
+  //           id: 1,
+  //           application: 1,
+  //         },
+  //       },
+  //       applications: {
+  //         1: {
+  //           id: 1,
+  //         },
+  //       },
+  //     },
+  //   });
 
-    const post = root.posts[0];
+  //   const post = root.posts[0];
 
-    post.setRef(1);
+  //   post.setRef(1);
 
-    const resolvedPost = post.application!.current.action();
+  //   const resolvedPost = post.application!.current.action();
 
-    expect(resolvedPost).not.toBeUndefined();
+  //   expect(resolvedPost).not.toBeUndefined();
 
-    expect(resolvedPost!.id).toBe(1);
-  });
+  //   expect(resolvedPost!.id).toBe(1);
+  // });
 
   it('resolves model references', () => {
     const AModel = model(

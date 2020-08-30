@@ -8,8 +8,8 @@ import {
 import { internalModel } from './internalModel';
 import { $nonEmptyObject } from 'mobx-state-tree/dist/internal';
 
-export declare const propsSymbol: unique symbol;
-export declare const modelToExtendSymbol: unique symbol;
+export const propsSymbol = Symbol('props');
+export const modelToExtendSymbol = Symbol('modelToExten');
 
 type AnyObject = { [k: string]: any };
 export abstract class BaseModel<PROPS extends AnyObject> {
