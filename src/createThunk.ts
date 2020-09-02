@@ -113,9 +113,15 @@ export const asyncModel = t
     },
   }));
 
+type AsyncAction<R> = (
+  flow: Instance<typeof asyncModel>,
+) => R | undefined;
+
+type ShouldSkipCheck = (flow: Instance<typeof asyncModel>) => boolean;
+
 export type Thunk<A extends any[], R> = (
   ...args: A
-) => (flow: Instance<typeof asyncModel>) => R | undefined;
+) => AsyncAction<R> | [ShouldSkipCheck, AsyncAction<R>];
 
 export function createThunk<A extends any[], R>(
   thunk: Thunk<A, R>,
@@ -145,7 +151,22 @@ export function createThunk<A extends any[], R>(
       ) => (flow: Instance<typeof asyncModel>) => R | undefined
     >(...args: Parameters<T>): R | undefined {
       const fn = thunk(...args);
-      const promise = () => fn.bind(getParent(store))(store);
+
+      let promise: () => R | undefined;
+
+      if (Array.isArray(fn)) {
+        const [check, actualThunk] = fn;
+
+        const shouldSkip = check.bind(getParent(store))(store);
+
+        if (shouldSkip) {
+          return undefined;
+        }
+
+        promise = () => actualThunk.bind(getParent(store))(store);
+      } else {
+        promise = () => fn.bind(getParent(store))(store);
+      }
 
       if (auto) {
         // @ts-ignore
