@@ -8,6 +8,7 @@ import {
   ISimpleType,
   SnapshotIn,
   Instance,
+  IAnyComplexType,
 } from 'mobx-state-tree';
 import { normalize, Schema } from 'normalizr';
 import { runInAction } from 'mobx';
@@ -52,11 +53,11 @@ function reduceNormalize(
 }
 
 type ModelAttribute<
-  T extends IAnyModelType,
+  T extends IAnyComplexType,
   Keys = keyof Instance<T>
 > = ((item: Instance<T>) => string) | Keys;
 
-type ListModelOptions<T extends IAnyModelType> = {
+type ListModelOptions<T extends IAnyComplexType> = {
   idAttribute?: Extract<keyof Instance<T>, string>;
   schema?: Schema<any>;
   entityName?: string;
@@ -68,7 +69,7 @@ type ListModelOptions<T extends IAnyModelType> = {
   fromAttribute?: ModelAttribute<T>;
 };
 
-interface ListModelType<T, TS = T | SnapshotIn<T>> {
+interface ListModelType<T, TS = T | SnapshotIn<T>, TI = Instance<T>> {
   readonly pageSize: number | undefined;
 
   readonly limit: number | undefined;
@@ -80,9 +81,9 @@ interface ListModelType<T, TS = T | SnapshotIn<T>> {
    */
   readonly asArray: T[];
 
-  readonly first: T | undefined;
+  readonly first: TI | undefined;
 
-  readonly last: T | undefined;
+  readonly last: TI | undefined;
 
   readonly isEmpty: boolean;
 
@@ -94,15 +95,15 @@ interface ListModelType<T, TS = T | SnapshotIn<T>> {
 
   readonly from: number | undefined;
 
-  byIndex(index: number): T | undefined;
+  byIndex(index: number): TI | undefined;
 
-  includes(item: T): boolean;
+  includes(item: TI): boolean;
 
-  findIndex(item: T): T | undefined;
+  findIndex(item: TI): TI | undefined;
 
-  findIndexById(id: number | string): T | undefined;
+  findIndexById(id: number | string): TI | undefined;
 
-  findById(id: number | string): T | undefined;
+  findById(id: number | string): TI | undefined;
 
   /**
    * Initialize list with an array
@@ -173,7 +174,7 @@ interface ListModelType<T, TS = T | SnapshotIn<T>> {
  * @returns {MSTModel} – mobx state tree model
  */
 export default function createListModel<
-  T extends IAnyModelType,
+  T extends IAnyComplexType,
   O extends ListModelOptions<T>
 >(model: T, options: O) {
   const {
@@ -291,15 +292,19 @@ export default function createListModel<
       }
 
       if (typeof fromAttribute === 'string') {
+        // @ts-ignore
         return item?.[fromAttribute];
       }
 
       if (typeof fromAttribute === 'function') {
+        // @ts-ignore
         return fromAttribute(item);
       }
 
+      // @ts-ignore
       return typeof item[idAttribute] !== 'undefined'
-        ? item[idAttribute]
+        ? // @ts-ignore
+          item[idAttribute]
         : item;
     }
 
@@ -316,10 +321,12 @@ export default function createListModel<
     }
 
     @view findIndexById(id: number | string) {
+      // @ts-ignore
       return this.array.findIndex((i) => i[idAttribute] === id);
     }
 
     @view findById(id: number | string) {
+      // @ts-ignore
       return this.array.find((i) => i[idAttribute] === id);
     }
 
@@ -508,7 +515,7 @@ export default function createListModel<
 }
 
 export function ListModel<
-  T extends IAnyModelType,
+  T extends IAnyComplexType,
   O extends ListModelOptions<T>
 >(model: T, options: O) {
   const listModel = createListModel<T, O>(model, options);
