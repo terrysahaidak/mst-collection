@@ -26,7 +26,10 @@ describe('Thunks', () => {
     counter.setCount(2);
     expect(counter.count).toBe(2);
 
-    await counter.setCountAsync.run(4);
+    const promise = counter.setCountAsync.run(4);
+    expect(counter.setCountAsync.inProgress).toBeTruthy();
+
+    await promise;
 
     expect(counter.setCountAsync.hasEverBeenRun).toBeTruthy();
     expect(counter.setCountAsync.inProgress).toBeFalsy();
@@ -39,9 +42,9 @@ describe('Thunks', () => {
       count: 0,
     }) {
       setCountAsync = createThunk(
-        () =>
+        (timeout: number) =>
           async function (this: Counter) {
-            await new Promise((res) => setTimeout(res, 100));
+            await new Promise((res) => setTimeout(res, timeout));
 
             return this.count;
           },
@@ -50,7 +53,7 @@ describe('Thunks', () => {
     const CounterModel = model(Counter);
     const counter = CounterModel.create({});
 
-    const value = await counter.setCountAsync.run();
+    const value = await counter.setCountAsync.run(100);
 
     expect(value).toBe(0);
   });
