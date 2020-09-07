@@ -31,6 +31,7 @@ describe('creating models', () => {
   it('extends ExtendedModel', () => {
     class CounterSuper extends ExtendedModel(Counter, {
       name: 'Test counter',
+      created: types.boolean,
     }) {
       setName(value: string) {
         this.name = value;
@@ -46,7 +47,7 @@ describe('creating models', () => {
     }
 
     const CounterModel = model(CounterSuper);
-    const counter = CounterModel.create({ count: 1 });
+    const counter = CounterModel.create({ count: 1, created: true });
 
     expect(counter.count).toBe(1);
     counter.increment();
