@@ -108,7 +108,7 @@ export function internalModel(Class: new () => any): any {
   // extracting thunks and local state
   instanceEntries.forEach(([key, value]) => {
     // @ts-ignore
-    if (value.isType) {
+    if (typeof value === 'object' && value !== null && value.isType) {
       // thunks
       thunks[key] = value;
     } else if (typeof value !== 'undefined') {

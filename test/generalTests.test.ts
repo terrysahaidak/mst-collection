@@ -3,7 +3,7 @@ import { model, Model, ExtendedModel } from '../src';
 
 describe('creating models', () => {
   class Counter extends Model({
-    count: types.number,
+    count: 0,
   }) {
     increment() {
       this.count += 1;
@@ -116,4 +116,16 @@ describe('creating models', () => {
 
     expect(env).toMatchObject({ a: 1 });
   });
+
+  it('can use null as volatile', () => {
+    class A extends Model({
+    }) {
+      volatileValue = null;
+    }
+
+    const AM = model(A);
+    const am = AM.create({});
+
+    expect(am.volatileValue).toBe(null);
+  })
 });
