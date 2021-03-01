@@ -1,3 +1,4 @@
+import { MergeStrategyType } from './CollectionModel';
 import {
   types,
   getRoot,
@@ -65,6 +66,7 @@ type ListModelOptions<T extends IAnyComplexType> = {
   reversed?: boolean;
   limit?: number;
   optional?: boolean;
+  mergeStrategy?: MergeStrategyType;
   // useSnapshotProcessor = true,
   fromAttribute?: ModelAttribute<T>;
 };
@@ -147,6 +149,8 @@ interface ListModelType<T, TS = T | SnapshotIn<T>, TI = Instance<T>> {
   setHasNoMore(value: boolean): void;
 
   clear(): void;
+
+  setMergeStrategy(mergeStrategy: MergeStrategyType): void;
 }
 
 /**
@@ -185,6 +189,7 @@ export default function createListModel<
     reversed,
     limit,
     fromAttribute,
+    mergeStrategy,
   } = options;
 
   /** TODO:
@@ -224,6 +229,12 @@ export default function createListModel<
     array: types.array(model),
     hasNoMore: false,
   }) {
+    _mergeStrategy?: MergeStrategyType = mergeStrategy;
+
+    setMergeStrategy(mergeStrategy: MergeStrategyType) {
+      this._mergeStrategy = mergeStrategy;
+    }
+
     get pageSize() {
       return pageSize;
     }
@@ -475,7 +486,10 @@ export default function createListModel<
       ) {
         const { result, entities } = this._normalize(data);
 
-        (getRoot(this) as any).entities.merge(entities);
+        (getRoot(this) as any).entities.merge(
+          entities,
+          this._mergeStrategy,
+        );
 
         return { result };
       }
@@ -488,20 +502,17 @@ export default function createListModel<
      * @param {array} items Data to be normalized
      */
     _normalize(items: any) {
-      if (
-        typeof schema === 'undefined' ||
-        typeof entityName === 'undefined'
-      ) {
-        throw new Error(
-          'ListModel: Cannot run normalize if neither schema or entityName is provided',
-        );
-      }
-
       if (typeof entityName === 'string') {
         return reduceNormalize(items, idAttribute, entityName);
       }
 
-      return normalize(items, schema);
+      if (typeof schema === 'string') {
+        return normalize(items, schema);
+      }
+
+      throw new Error(
+        'ListModel: Cannot run normalize if neither schema or entityName is provided',
+      );
     }
   }
 
