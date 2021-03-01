@@ -502,11 +502,11 @@ export default function createListModel<
      * @param {array} items Data to be normalized
      */
     _normalize(items: any) {
-      if (typeof entityName === 'string') {
+      if (typeof entityName !== 'undefined') {
         return reduceNormalize(items, idAttribute, entityName);
       }
 
-      if (typeof schema === 'string') {
+      if (typeof schema !== 'undefined') {
         return normalize(items, schema);
       }
 
