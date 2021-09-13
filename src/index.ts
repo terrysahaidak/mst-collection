@@ -1,18 +1,22 @@
-import { createThunk } from './createThunk';
-import { Model, model, ExtendedModel, view } from './Model';
-import {
-  createStringEntityRef,
-  createNumberEntityRef,
-  getReferenceParentOfType,
-  castEntityRef,
-} from './entityRef';
 import { CollectionModel } from './CollectionModel';
+import {
+  createManualThunk,
+  createThunk,
+  setOnThunkErrorCallback,
+} from './createThunk';
 import { EntitiesModel } from './EntitiesModel';
-import { RootModel } from './RootModel';
+import {
+  castEntityRef,
+  createNumberEntityRef,
+  createStringEntityRef,
+  getReferenceParentOfType,
+} from './entityRef';
 import {
   ListModel,
   useListModelSnapshotProcessor,
 } from './ListModel';
+import { ExtendedModel, Model, model, view } from './Model';
+import { RootModel } from './RootModel';
 
 export {
   createThunk,
@@ -29,4 +33,6 @@ export {
   RootModel,
   ListModel,
   useListModelSnapshotProcessor,
+  createManualThunk,
+  setOnThunkErrorCallback,
 };
