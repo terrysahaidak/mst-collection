@@ -1,11 +1,13 @@
 import {
-  types as t,
+  getParent,
   getRoot,
   Instance,
-  getParent,
+  types as t,
 } from 'mobx-state-tree';
 import { normalize, Schema } from 'normalizr';
 import { MergeStrategyType } from './CollectionModel';
+
+let onErrorCallback: (err: unknown) => void;
 
 export const asyncModel = t
   .model({
@@ -83,6 +85,10 @@ export const asyncModel = t
         };
       } else {
         store.error = err;
+      }
+
+      if (onErrorCallback) {
+        onErrorCallback(err);
       }
 
       if (throwError) {
@@ -180,4 +186,22 @@ export function createThunk<A extends any[], R>(
   return (t.optional(thunkModel, {}) as any) as Instance<
     typeof thunkModel
   >;
+}
+
+// Just a nicer API so we don't need to pass false, false
+export function createManualThunk<A extends any[], R>(
+  thunk: Thunk<A, R>,
+) {
+  return createThunk<A, R>(thunk, false, false);
+}
+
+/**
+ * Sets a callback to be executed each time we call asyncModel.failed
+ * Useful if you want to log errors
+ *
+ * @export
+ * @param {(err: unknown) => void} cb - callback to be executed on each failed call
+ */
+export function setOnThunkErrorCallback(cb: (err: unknown) => void) {
+  onErrorCallback = cb;
 }
