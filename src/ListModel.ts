@@ -81,7 +81,7 @@ interface ListModelType<T, TS = T | SnapshotIn<T>, TI = Instance<T>> {
    * Useful for some virtualized lists which compares values using references.
    * @returns {array} – regular js array
    */
-  readonly asArray: T[];
+  readonly asArray: TI[];
 
   readonly first: TI | undefined;
 
